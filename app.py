@@ -2,9 +2,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 from bs4 import BeautifulSoup
+import os
 
 app = Flask(__name__)
-CORS(app)  # CORS açıldı, frontend'den istek kabul eder
+CORS(app)
 
 @app.route('/api/download', methods=['POST'])
 def download():
@@ -25,7 +26,6 @@ def download():
 
         soup = BeautifulSoup(res.text, 'html.parser')
 
-        # Video ya da fotoğraf linki bul
         tag = soup.find('meta', property='og:video') or soup.find('meta', property='og:image')
         if tag and tag.get('content'):
             media_url = tag['content']
@@ -37,4 +37,5 @@ def download():
         return jsonify({"error": "Bir hata oluştu: " + str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    port = int(os.environ.get("PORT", 5000))  # Render için uyumlu
+    app.run(host='0.0.0.0', port=port) 
